@@ -1,0 +1,215 @@
+# Copyright 2023 Google Inc.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+--- !ruby/object:Api::Resource
+name: NotebookRuntimeTemplate
+base_url: projects/{{project}}/locations/{{region}}/notebookRuntimeTemplates
+create_url: projects/{{project}}/locations/{{region}}/notebookRuntimeTemplates
+self_link: projects/{{project}}/locations/{{region}}/notebookRuntimeTemplates/{{name}}
+update_verb: :PATCH
+update_mask: true
+create_verb: :POST
+references: !ruby/object:Api::Resource::ReferenceLinks
+  api: https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.notebookRuntimeTemplates/
+async: !ruby/object:Api::OpAsync
+  actions:
+    - create
+    - delete
+  operation: !ruby/object:Api::OpAsync::Operation
+    path: 'name'
+    base_url: '{{op_id}}'
+    wait_ms: 1000
+  result: !ruby/object:Api::OpAsync::Result
+    path: 'response'
+    resource_inside_response: true
+  status: !ruby/object:Api::OpAsync::Status
+    path: 'done'
+    complete: True
+    allowed:
+      - True
+      - False
+  error: !ruby/object:Api::OpAsync::Error
+    path: 'error'
+    message: 'message'
+description: |
+  An endpoint indexes are deployed into. An index endpoint can have multiple deployed indexes.
+autogen_async: false
+examples:
+  - !ruby/object:Provider::Terraform::Examples
+    name: "vertex_ai_notebook_runtime_template"
+    primary_resource_id: "notebook_runtime_template"
+    vars:
+      network_name: "network-name"
+      subnet_name: "subnet-name"
+parameters:
+  - !ruby/object:Api::Type::String
+    name: region
+    description: The region of the index endpoint. eg us-central1
+    url_param_only: true
+    immutable: true
+properties:
+  - !ruby/object:Api::Type::String
+    name: 'name'
+    description: The resource name of the NotebookRuntimeTemplate.
+    output: true
+    custom_flatten: templates/terraform/custom_flatten/name_from_self_link.erb
+  - !ruby/object:Api::Type::String
+    name: 'displayName'
+    description: The display name of the NotebookRuntimeTemplate. The name can be up to 128 characters long and can consist of any UTF-8 characters.
+    required: true
+  - !ruby/object:Api::Type::String
+    name: 'description'
+    description: The description of the NotebookRuntimeTemplate.
+  - !ruby/object:Api::Type::Boolean
+    name: 'isDefault'
+    description: Output only. The default template to use if not specified.
+    output: true
+  - !ruby/object:Api::Type::NestedObject
+    name: 'machineSpec'
+    description: Optional. Immutable. The specification of a single machine for the template.
+    immutable: true
+    required: true
+    properties:
+      - !ruby/object:Api::Type::String
+        name: 'machineType'
+        description: Immutable. The type of the machine.
+        required: true
+      - !ruby/object:Api::Type::Enum
+        name: 'acceleratorType'
+        description: Immutable. The type of accelerator(s) that may be attached to the machine as per acceleratorCount.
+        values:
+          - ACCELERATOR_TYPE_UNSPECIFIED
+          - NVIDIA_TESLA_K80
+          - NVIDIA_TESLA_P100
+          - NVIDIA_TESLA_V100
+          - NVIDIA_TESLA_P4
+          - NVIDIA_TESLA_T4
+          - NVIDIA_TESLA_A100
+          - NVIDIA_A100_80GB
+          - NVIDIA_L4
+          - NVIDIA_H100_80GB
+          - TPU_V2
+          - TPU_V3
+          - TPU_V4_POD
+          - TPU_V5_LITEPOD
+      - !ruby/object:Api::Type::Integer
+        name: 'acceleratorCoreCount'
+        default_value: 0
+        description: The number of accelerators to attach to the machine.
+      - !ruby/object:Api::Type::String
+        name: 'tpuTopology'
+        description: |
+          Immutable. The topology of the TPUs. Corresponds to the TPU topologies available from GKE. (Example: tpuTopology: "2x2x1").
+  - !ruby/object:Api::Type::NestedObject
+    name: 'dataPersistentDiskSpec'
+    description: Optional. The specification of [persistent disk][https://cloud.google.com/compute/docs/disks/persistent-disks] attached to the runtime as data disk storage.
+    default_from_api: true
+    properties:
+      - !ruby/object:Api::Type::Integer
+        name: 'diskSizeGb'
+        description: size in GB of the disk (default is 100GB).
+        default_value: 100
+      - !ruby/object:Api::Type::String
+        name: 'diskType'
+        description: |
+          type of the disk (default is "pd-standard"). Valid values: "pd-ssd" (Persistent Disk Solid State Drive) "pd-standard" (Persistent Disk Hard Disk Drive) "pd-balanced" (Balanced Persistent Disk) "pd-extreme" (Extreme Persistent Disk).
+        default_value: 'pd-standard'
+  - !ruby/object:Api::Type::NestedObject
+    name: 'networkSpec'
+    description: Optional. Network spec.
+    properties:
+      - !ruby/object:Api::Type::Boolean
+        name: 'enableInternetAccess'
+        # default_from_api: true
+        description: Whether to enable public internet access. Default false.
+      - !ruby/object:Api::Type::String
+        name: 'network'
+        description: The full name of the Google Compute Engine network
+      - !ruby/object:Api::Type::String
+        name: 'subnetwork'
+        description: |
+          The name of the subnet that this instance is in.
+          Format: projects/{project_id_or_number}/regions/{region}/subnetworks/{subnetwork_id}
+  - !ruby/object:Api::Type::String
+    name: 'serviceAccount'
+    description: |
+      The service account that the runtime workload runs as. You can use any service account within the same project, but you must have the service account user permission to use the instance.
+      If not specified, the Compute Engine default service account is used.
+  - !ruby/object:Api::Type::String
+    name: 'etag'
+    description: Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens.
+    output: true
+    ignore_read: true
+  - !ruby/object:Api::Type::KeyValueLabels
+    name: 'labels'
+    description: |
+      The labels with user-defined metadata to organize the NotebookRuntimeTemplates.
+      Label keys and values can be no longer
+      than 64 characters (Unicode codepoints), can only contain lowercase
+      letters, numeric characters, underscores and dashes. International
+      characters are allowed. See https://goo.gl/xmQnxf for more
+      information and examples of labels.
+  - !ruby/object:Api::Type::NestedObject
+    name: 'idleShutdownConfig'
+    default_from_api: true
+    description: The idle shutdown configuration of NotebookRuntimeTemplate. This config will only be set when idle shutdown is enabled.
+    properties:
+      - !ruby/object:Api::Type::String
+        name: 'idleTimeout'
+        default_value: '10800s'
+        description: | 
+          Required. Duration is accurate to the second. In Notebook, Idle Timeout is accurate to minute so the range of idleTimeout (second) is: 10 * 60 ~ 1440 * 60.
+
+          A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s".
+      - !ruby/object:Api::Type::Boolean
+        name: 'idleShutdown'
+        default_value: false
+        description: Whether Idle Shutdown is disabled in this NotebookRuntimeTemplate.
+  - !ruby/object:Api::Type::NestedObject
+    name: 'eucConfig'
+    description: The EUC options for the runtime.
+    properties:
+      - !ruby/object:Api::Type::String
+        name: 'enableEuc'
+        description: Indicates if EUC is enabled for the runtime.
+  - !ruby/object:Api::Type::String
+    name: 'createTime'
+    description: The timestamp of when the Index was created in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
+    output: true
+  - !ruby/object:Api::Type::String
+    name: 'updateTime'
+    description: The timestamp of when the Index was last updated in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
+    output: true
+  - !ruby/object:Api::Type::Enum
+    name: 'notebookRuntimeType'
+    description: Optional. Immutable. The type of the notebook runtime template.
+    immutable: true
+    default_value: :USER_DEFINED
+    values:
+      - :NOTEBOOK_RUNTIME_TYPE_UNSPECIFIED
+      - :USER_DEFINED
+      - :ONE_CLICK
+  - !ruby/object:Api::Type::NestedObject
+    name: 'shieldedVmConfig'
+    description: Optional. Immutable. Runtime Shielded VM spec.
+    properties:
+      - !ruby/object:Api::Type::Boolean
+        name: 'enableSecureBoot'
+        description: >-
+          Defines whether the instance has [Secure
+          Boot](https://cloud.google.com/compute/shielded-vm/docs/shielded-vm#secure-boot)
+          enabled. Secure Boot helps ensure that the system only runs
+          authentic software by verifying the digital signature of all boot
+          components, and halting the boot process if signature verification
+          fails.
+

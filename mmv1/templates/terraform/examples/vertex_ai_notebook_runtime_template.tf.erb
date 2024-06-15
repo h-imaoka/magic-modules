@@ -1,0 +1,41 @@
+resource "google_vertex_ai_notebook_runtime_template" "<%= ctx[:primary_resource_id] %>" {
+  display_name = "sample-notebook-template"
+  description  = "A sample notebook template"
+  region       = "us-central1"
+  labels       = {
+    label-one = "value-one"
+  }
+  machine_spec {
+    machine_type = "n1-standard-4"
+  }
+  network_spec {
+    network = google_compute_network.network.id
+    subnetwork  = google_compute_subnetwork.subnet.id
+    enable_internet_access = true
+  }
+
+  data_persistent_disk_spec {
+    disk_size_gb = 100
+    disk_type = "pd-standard"
+  }
+
+  idle_shutdown_config {
+    idle_shutdown = false
+    idle_timeout  = "10800s"
+  }
+
+}
+
+resource "google_compute_subnetwork" "subnet" {
+  name          = "<%= ctx[:vars]['subnet_name'] %>"
+  ip_cidr_range = "10.1.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.network.name
+}
+
+resource "google_compute_network" "network" {
+  name                    = "<%= ctx[:vars]['network_name'] %>"
+  auto_create_subnetworks = false
+}
+
+data "google_project" "project" {}
