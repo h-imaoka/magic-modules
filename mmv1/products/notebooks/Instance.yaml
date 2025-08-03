@@ -368,7 +368,7 @@ properties:
     name: 'network'
     description: |
       The name of the VPC that this instance is in.
-      Format: projects/{project_id}/global/networks/{network_id}
+      Format: projects/{project_id}/global/networks/{network_id}f
     diff_suppress_func: tpgresource.CompareSelfLinkOrResourceName
     default_from_api: true
   - !ruby/object:Api::Type::String

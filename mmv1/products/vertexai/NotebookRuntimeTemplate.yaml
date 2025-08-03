@@ -42,7 +42,7 @@ async: !ruby/object:Api::OpAsync
     path: 'error'
     message: 'message'
 description: |
-  An endpoint indexes are deployed into. An index endpoint can have multiple deployed indexes.
+  A template that specifies runtime configurations such as machine type, runtime version, network configurations, etc. Multiple runtimes can be created from a runtime template.
 autogen_async: false
 examples:
   - !ruby/object:Provider::Terraform::Examples
@@ -102,6 +102,7 @@ properties:
           - TPU_V3
           - TPU_V4_POD
           - TPU_V5_LITEPOD
+        immutable: true
       - !ruby/object:Api::Type::Integer
         name: 'acceleratorCoreCount'
         default_value: 0
